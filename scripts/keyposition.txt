@@ -1,0 +1,4 @@
+ready_position = []
+detection_position = []
+moveTo_memoery_above = []
+
