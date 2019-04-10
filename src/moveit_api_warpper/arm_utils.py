@@ -5,6 +5,8 @@ from moveit_msgs.msg import RobotTrajectory
 from trajectory_msgs.msg import JointTrajectoryPoint
 from geometry_msgs.msg import (PoseStamped, Pose, Vector3, Quaternion)
 from moveit_api_warpper import _Constant
+from staubli_val3_driver.srv import IOCommand,IOCommandRequest,IOCommandResponse
+from linemod_pose_estimation.srv import linemod_pose, linemod_poseRequest, linemod_poseResponse
 
 
 def scale_trajectory_speed(traj, scale):
@@ -83,45 +85,19 @@ def set_trajectory_speed(traj, speed):
        return new_traj
    
 
-def IK_MoveIt(MoveIt_arm, StartPosition, MiddlePosition,EndPosition , Accuracy):
-
-    waypoints = []  
-
+def IK_MoveIt(MoveIt_arm, StartPose, EndPose , Accuracy):
     wpose = Pose()
-    wpose.orientation.x = 0.0
-    wpose.orientation.y = 1.0
-    wpose.orientation.z = 0.0
-    wpose.orientation.w = 0.0
-
-    # first point
-    wpose.position.x = StartPosition[0]
-    wpose.position.y = StartPosition[1]
-    wpose.position.z = StartPosition[2]
-    waypoints.append(copy.deepcopy(wpose))
-
-    # Middle Point (if existed)
-    if MiddlePosition != False :
-        Number = len(MiddlePosition)/3 - 1
-        for i in range(Number):
-            wpose.position.x = MiddlePosition[i*3]
-            wpose.position.y = MiddlePosition[i*3+1]
-            wpose.position.z = MiddlePosition[i*3+2]
-            waypoints.append(copy.deepcopy(wpose))
-
-    # End point
-    wpose.position.x = EndPosition[0]
-    wpose.position.y = EndPosition[1]
-    wpose.position.z = EndPosition[2]
-    waypoints.append(copy.deepcopy(wpose))
-
+    waypoints = []  
+    waypoints.append(group.get_current_pose().pose)
+    waypoints.append(copy.deepcopy(StartPose))
+    waypoints.append(copy.deepcopy(EndPose))  
     (plan, fraction) = MoveIt_arm.compute_cartesian_path(
                                waypoints,   # waypoints to follow
                                Accuracy,        # eef_step
                                0.0)         # jump_threshold
     
-    # Execute the plan         
-    #raw_input('Press Enter to go')            
-    MoveIt_arm.execute(plan) 
+    return cartesian_plan
+
 
 def iK_calculate(MoveIt_arm,pose_target):
     arm_goal_pose = PoseStamped()
@@ -135,16 +111,17 @@ def iK_calculate(MoveIt_arm,pose_target):
 
 def fK_calculate(MoveIt_arm,JointAngle):
     MoveIt_arm.set_joint_value_target(JointAngle)
-    MoveIt_arm.set_start_state_to_current_state()
+    # MoveIt_arm.set_start_state_to_current_state()
     FK_plan = MoveIt_arm.plan()
     return FK_plan
     
 def execute_plan(MoveIt_arm,plan):
     if _Constant.HUMAN_CONTROL: 
         raw_input('Press Enter to go') 
-        MoveIt_arm.execute(plan)
+        MoveIt_arm.execute(plan,wait=True)
     else:
-        MoveIt_arm.execute(plan)
+        MoveIt_arm.execute(plan,wait=True)
+        # rospy.sleep(1)
 
 
 def print_robot_Jointstate(robot):
@@ -152,3 +129,34 @@ def print_robot_Jointstate(robot):
     time = robot.get_current_state().joint_state.header.stamp.secs
     return {'t': time, 'joint': joint}
 
+
+def object_pose(object_id):
+    rospy.wait_for_service('/linemod_object_pose',timeout=3)
+    try:
+        req = linemod_poseRequest()
+        req.object_id = object_id
+        client = rospy.ServiceProxy('/linemod_object_pose', linemod_pose)
+        res = client(req)
+        rospy.loginfo("res is %s", res)
+    except rospy.ServiceException, e:
+        rospy.loginfo("Service call failed: %s"%e)
+    return res
+
+def gripper_control(state):
+    rospy.wait_for_service('io_command',timeout=3)
+    try:
+        req = IOCommandRequest()
+        if state == "open":
+            req.io_command.append(0)
+            req.io_command.append(0)
+        elif state == "chip_close":
+            req.io_command.append(1)
+            req.io_command.append(0)
+        elif state == "cpu_close":
+            req.io_command.append(0)
+            req.io_command.append(1)
+        client = rospy.ServiceProxy('io_command', IOCommand)
+        res = client(req)
+        rospy.loginfo("res is %s", res)
+    except rospy.ServiceException, e:
+        rospy.loginfo("Service call failed: %s"%e)

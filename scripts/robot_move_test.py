@@ -22,9 +22,14 @@ robot.set_planning_time(15)
 # Allow replanning to increase the odds of a solution
 robot.allow_replanning(True)
 # Allow some leeway in position(meters) and orientation (radians)
-robot.set_goal_position_tolerance(0.05)
-robot.set_goal_orientation_tolerance(0.1)
 
+group.set_max_velocity_scaling_factor(0.5)
+group.set_max_acceleration_scaling_factor(0.5)
+group.set_goal_joint_tolerance(0.001)
+group.set_goal_position_tolerance(0.001)
+group.set_goal_orientation_tolerance(0.001)
+
+rospy.sleep(1)
 if DEBUG:
     print "============ Reference frame for this robot: %s" % group.get_planning_frame()
     print "============ End-effector link for this group: %s" % group.get_end_effector_link()
