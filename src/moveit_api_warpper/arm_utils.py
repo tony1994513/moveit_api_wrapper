@@ -118,6 +118,7 @@ def fK_calculate(MoveIt_arm,JointAngle):
 def execute_plan(MoveIt_arm,plan):
     if _Constant.HUMAN_CONTROL: 
         raw_input('Press Enter to go') 
+        plan = plan.joint_trajectory.points[-1].time_from_start.secs = 200
         MoveIt_arm.execute(plan,wait=True)
     else:
         MoveIt_arm.execute(plan,wait=True)
