@@ -13,6 +13,8 @@ from tf.transformations import (
     translation_from_matrix,
     quaternion_from_matrix,
 )
+import tf,numpy
+import pdb
 
 def scale_trajectory_speed(traj, scale):
        new_traj = RobotTrajectory()
@@ -123,7 +125,8 @@ def fK_calculate(MoveIt_arm,JointAngle):
 def execute_plan(MoveIt_arm,plan):
     if _Constant.HUMAN_CONTROL: 
         raw_input('Press Enter to go') 
-        plan = plan.joint_trajectory.points[-1].time_from_start.secs = 200
+        # pdb.set_trace()
+        plan.joint_trajectory.points[-1].time_from_start.secs = 1000
         MoveIt_arm.execute(plan,wait=True)
     else:
         MoveIt_arm.execute(plan,wait=True)
@@ -168,18 +171,82 @@ def gripper_control(state):
         rospy.loginfo("Service call failed: %s"%e)
 
 def linear_interplotation(pick_pose, offset=0.05, num=10):
-    mat = quaternion_matrix((pick_pose.pose.position.x, pick_pose.pose.position.y, pick_pose.pose.position.z, pick_pose.pose.position.w))
-    z_dir = mat[:,2]
+    mat = quaternion_matrix((pick_pose.orientation.x, pick_pose.orientation.y, pick_pose.orientation.z, pick_pose.orientation.w))
+    y_dir = mat[:,1]
     step = offset/num
-    temp_list = []
+    new_traj = []
+    pdb.set_trace()
+
+    pick_pose.pose.translation.x = pick_pose.pose.translation.x + 0.3 * y_dir[0]
+    pick_pose.pose.translation.y = pick_pose.pose.translation.y + 0.3 * y_dir[1]
+    pick_pose.pose.translation.z = pick_pose.pose.translation.z + 0.3 * y_dir[2]
+
     for idx in range(num):
         temp = Pose()
-        temp.position.x = pick_pose.pose.position.x - step * dir[0]*(num-idx)
-        temp.position.y = pick_pose.pose.position.y - step * dir[1]*(num-idx)
-        temp.position.z = pick_pose.pose.position.z - step * dir[2]*(num-idx)
-        temp.orientation = pick_pose.pose.orientation
+        temp.position.x = pick_pose.pose.translation.x + step * y_dir[0]*(num-idx)
+        temp.position.y = pick_pose.pose.translation.y + step * y_dir[1]*(num-idx)
+        temp.position.z = pick_pose.pose.translation.z + step * y_dir[2]*(num-idx)
+        temp.orientation = pick_pose.pose.rotation
+        new_traj.append(temp)
+    return new_traj
+
+
+def objectPoseToPickpose(object_pose):
+    pos = object_pose.pose.translation
+    ori = object_pose.pose.rotation 
+    object_mat = numpy.dot(translation_matrix((pos.x, pos.y, pos.z)), quaternion_matrix((ori.x, ori.y, ori.z,ori.w)))
+    trans = translation_from_matrix(object_mat)
+    quat = quaternion_from_matrix(object_mat)
+
+    # x 90
+    rot_1 = numpy.array((
+        [[1.0, 0.0, 0.0, 0.0],
+        [0.0, 0.0, -1, 0.0],
+        [0.0, 1, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 1.0]]
+        ), dtype=numpy.float64),
+
+    aa = 2**0.5/2
+    rot_2 = numpy.array((
+        [[-aa, -aa, 0, 0],
+        [aa, -aa, 0, 0],
+        [0, 0, 1, 0],
+        [0, 0, 0, 1]]
+        ), dtype=numpy.float64),
+
+
+        
+    new_mat = numpy.dot(numpy.dot(object_mat,rot_1[0]), rot_2[0])
     
+    new_trans = translation_from_matrix(new_mat)
+    new_quat = quaternion_from_matrix(new_mat)
 
+    new_pose = Pose()
+    new_pose.position.x = new_trans[0]
+    new_pose.position.y = new_trans[1]
+    new_pose.position.z = new_trans[2]
+    new_pose.orientation.x = new_quat[0]
+    new_pose.orientation.y = new_quat[1]
+    new_pose.orientation.z = new_quat[2]
+    new_pose.orientation.w = new_quat[3]
 
+    SHOW_TF = True
+    if SHOW_TF:
+        broadcaster = tf.TransformBroadcaster()
 
+        broadcaster.sendTransform(
+            trans,
+            quat,
+            rospy.Time.now(),
+            'object_pose',
+            'base_link', 
+            )
 
+        broadcaster.sendTransform(
+        new_trans,
+        new_quat,
+        rospy.Time.now(),
+        'picking_pose',
+        'base_link', 
+    )
+    return new_pose
