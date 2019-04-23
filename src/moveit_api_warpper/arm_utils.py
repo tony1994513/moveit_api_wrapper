@@ -7,7 +7,12 @@ from geometry_msgs.msg import (PoseStamped, Pose, Vector3, Quaternion)
 from moveit_api_warpper import _Constant
 from staubli_val3_driver.srv import IOCommand,IOCommandRequest,IOCommandResponse
 from linemod_pose_estimation.srv import linemod_pose, linemod_poseRequest, linemod_poseResponse
-
+from tf.transformations import (
+    translation_matrix,
+    quaternion_matrix,
+    translation_from_matrix,
+    quaternion_from_matrix,
+)
 
 def scale_trajectory_speed(traj, scale):
        new_traj = RobotTrajectory()
@@ -161,3 +166,20 @@ def gripper_control(state):
         rospy.loginfo("res is %s", res)
     except rospy.ServiceException, e:
         rospy.loginfo("Service call failed: %s"%e)
+
+def linear_interplotation(pick_pose, offset=0.05, num=10):
+    mat = quaternion_matrix((pick_pose.pose.position.x, pick_pose.pose.position.y, pick_pose.pose.position.z, pick_pose.pose.position.w))
+    z_dir = mat[:,2]
+    step = offset/num
+    temp_list = []
+    for idx in range(num):
+        temp = Pose()
+        temp.position.x = pick_pose.pose.position.x - step * dir[0]*(num-idx)
+        temp.position.y = pick_pose.pose.position.y - step * dir[1]*(num-idx)
+        temp.position.z = pick_pose.pose.position.z - step * dir[2]*(num-idx)
+        temp.orientation = pick_pose.pose.orientation
+    
+
+
+
+
