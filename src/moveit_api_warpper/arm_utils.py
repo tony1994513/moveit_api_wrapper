@@ -170,23 +170,18 @@ def gripper_control(state):
     except rospy.ServiceException, e:
         rospy.loginfo("Service call failed: %s"%e)
 
-def linear_interplotation(pick_pose, offset=0.05, num=10):
+def linear_interplotation(pick_pose, offset=0.1, num=20):
     mat = quaternion_matrix((pick_pose.orientation.x, pick_pose.orientation.y, pick_pose.orientation.z, pick_pose.orientation.w))
-    y_dir = mat[:,1]
+    z_dir = mat[:,2]
     step = offset/num
     new_traj = []
-    pdb.set_trace()
-
-    pick_pose.pose.translation.x = pick_pose.pose.translation.x + 0.3 * y_dir[0]
-    pick_pose.pose.translation.y = pick_pose.pose.translation.y + 0.3 * y_dir[1]
-    pick_pose.pose.translation.z = pick_pose.pose.translation.z + 0.3 * y_dir[2]
 
     for idx in range(num):
         temp = Pose()
-        temp.position.x = pick_pose.pose.translation.x + step * y_dir[0]*(num-idx)
-        temp.position.y = pick_pose.pose.translation.y + step * y_dir[1]*(num-idx)
-        temp.position.z = pick_pose.pose.translation.z + step * y_dir[2]*(num-idx)
-        temp.orientation = pick_pose.pose.rotation
+        temp.position.x = pick_pose.position.x + step * z_dir[0]*(idx)
+        temp.position.y = pick_pose.position.y + step * z_dir[1]*(idx)
+        temp.position.z = pick_pose.position.z + step * z_dir[2]*(idx)
+        temp.orientation = pick_pose.orientation
         new_traj.append(temp)
     return new_traj
 
@@ -214,10 +209,14 @@ def objectPoseToPickpose(object_pose):
         [0, 0, 0, 1]]
         ), dtype=numpy.float64),
 
+    rot_3 = numpy.array((
+        [[1, 0, 0, 0],
+        [0, 1, 0, 0],
+        [0, 0, 1, -0.17],
+        [0, 0, 0, 1]]
+        ), dtype=numpy.float64),
 
-        
-    new_mat = numpy.dot(numpy.dot(object_mat,rot_1[0]), rot_2[0])
-    
+    new_mat = numpy.dot(numpy.dot(numpy.dot(object_mat,rot_1[0]), rot_2[0]), rot_3[0])
     new_trans = translation_from_matrix(new_mat)
     new_quat = quaternion_from_matrix(new_mat)
 
