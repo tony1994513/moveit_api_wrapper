@@ -126,11 +126,28 @@ def execute_plan(MoveIt_arm,plan):
     if _Constant.HUMAN_CONTROL: 
         raw_input('Press Enter to go') 
         # pdb.set_trace()
-        plan.joint_trajectory.points[-1].time_from_start.secs = 1000
+        plan.joint_trajectory.points[-1].time_from_start.secs = 100000
         MoveIt_arm.execute(plan,wait=True)
     else:
         MoveIt_arm.execute(plan,wait=True)
         # rospy.sleep(1)
+
+def fk_compute_service(position):
+    rospy.wait_for_service('compute_fk',timeout=3)
+    try:
+        req = GetPositionFKRequest()
+        rs = RobotState()
+        req.fk_link_names = ["tool0"]
+        joint_names = ["joint_1","joint_2","joint_3","joint_4","joint_5","joint_6"]
+        rs.joint_state.name = joint_names
+        rs.joint_state.position = position
+        req.robot_state = rs
+        client = rospy.ServiceProxy('compute_fk', GetPositionFK)
+        res = client(req)
+    except rospy.ServiceException, e:
+        rospy.loginfo("Service call failed: %s"%e)
+    # pdb.set_trace()
+    return res.pose_stamped[0]
 
 
 def print_robot_Jointstate(robot):
@@ -176,11 +193,16 @@ def linear_interplotation(pick_pose, offset=0.1, num=20):
     step = offset/num
     new_traj = []
 
+    #pick_pose.position.x = pick_pose.position.x - offset * z_dir[0]
+    #pick_pose.position.y = pick_pose.position.y - offset * z_dir[1]
+    #pick_pose.position.z = pick_pose.position.z - offset * z_dir[2]
+    #pick_pose.orientation = pick_pose.orientation
+
     for idx in range(num):
         temp = Pose()
-        temp.position.x = pick_pose.position.x + step * z_dir[0]*(idx)
-        temp.position.y = pick_pose.position.y + step * z_dir[1]*(idx)
-        temp.position.z = pick_pose.position.z + step * z_dir[2]*(idx)
+        temp.position.x = pick_pose.position.x - step * z_dir[0]*(num-idx)
+        temp.position.y = pick_pose.position.y - step * z_dir[1]*(num-idx)
+        temp.position.z = pick_pose.position.z - step * z_dir[2]*(num-idx)
         temp.orientation = pick_pose.orientation
         new_traj.append(temp)
     return new_traj
@@ -210,9 +232,9 @@ def objectPoseToPickpose(object_pose):
         ), dtype=numpy.float64),
 
     rot_3 = numpy.array((
-        [[1, 0, 0, 0],
+        [[1, 0, 0, -0.005],
         [0, 1, 0, 0],
-        [0, 0, 1, -0.17],
+        [0, 0, 1, -0.19], # humanset
         [0, 0, 0, 1]]
         ), dtype=numpy.float64),
 
