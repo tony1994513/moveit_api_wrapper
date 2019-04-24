@@ -49,14 +49,9 @@ def fK_calculate(MoveIt_arm,JointAngle):
     return FK_plan
     
 def execute_plan(MoveIt_arm,plan):
-    if _Constant.HUMAN_CONTROL: 
-        raw_input('Press Enter to go') 
-        # pdb.set_trace()
-        plan.joint_trajectory.points[-1].time_from_start.secs = 100000
-        MoveIt_arm.execute(plan,wait=True)
-    else:
-        MoveIt_arm.execute(plan,wait=True)
-        # rospy.sleep(1)
+    raw_input('Press Enter to go') 
+    plan.joint_trajectory.points[-1].time_from_start.secs = 100000
+    MoveIt_arm.execute(plan,wait=True)
 
 def fk_compute_service(position):
     rospy.wait_for_service('compute_fk',timeout=3)
@@ -75,6 +70,9 @@ def fk_compute_service(position):
     # pdb.set_trace()
     return res.pose_stamped[0].pose
 
+def speed_set(group,factor):
+    group.set_max_velocity_scaling_factor(factor)
+    group.set_max_acceleration_scaling_factor(factor)
 
 def print_robot_Jointstate(robot):
     joint = robot.get_current_state().joint_state.position

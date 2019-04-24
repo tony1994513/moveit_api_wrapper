@@ -27,14 +27,6 @@ class GetJointStates:
         # Joints are stored in the order they appear in the kinematic chain
         joint_names = right_arm.get_active_joints()
         
-        joint_names = ['joint_1',
-                       'joint_2',
-                       'joint_3',
-                       'joint_4',
-                       'joint_5',
-                       'joint_6'
-                       ]
-        
         # Display the joint names
         rospy.loginfo("Joint names:\n"  + str(joint_names))
         
@@ -45,10 +37,10 @@ class GetJointStates:
         rospy.loginfo("Joint values:\n"  + str(joint_values) + "\n")
         
         # # Get the end-effector pose
-        # ee_pose = right_arm.get_current_pose(end_effector_link)
+        ee_pose = right_arm.get_current_pose(end_effector_link)
         
-        # # Display the end-effector pose
-        # rospy.loginfo("End effector pose:\n" + str(ee_pose))
+        # Display the end-effector pose
+        rospy.loginfo("End effector pose:\n" + str(ee_pose))
         
         moveit_commander.roscpp_shutdown()
         moveit_commander.os._exit(0)
