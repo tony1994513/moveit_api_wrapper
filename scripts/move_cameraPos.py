@@ -14,7 +14,7 @@ moveit_commander.roscpp_initialize(sys.argv)
 rospy.init_node('robot_move_test', anonymous=True)
 robot = moveit_commander.RobotCommander()
 group = moveit_commander.MoveGroupCommander("tx90_arm")
-plan = arm_utils.fK_calculate(group,_Constant.camera_detection_position)
+plan = arm_utils.fK_calculate(group,_Constant.memoeryChip_camera_detection)
 plan.joint_trajectory.points[-1].time_from_start.secs = 100
 arm_utils.execute_plan(group,plan)
 print "Done"
