@@ -49,8 +49,8 @@ def fK_calculate(MoveIt_arm,JointAngle):
     return FK_plan
     
 def execute_plan(MoveIt_arm,plan):
-    raw_input('Press Enter to go') 
-    plan.joint_trajectory.points[-1].time_from_start.secs = 100000
+    # raw_input('Press Enter to go') 
+    plan.joint_trajectory.points[-1].time_from_start.secs = 1000000
     MoveIt_arm.execute(plan,wait=True)
 
 def fk_compute_service(position):
@@ -124,9 +124,24 @@ def linear_interplotation(pick_pose, offset=0.1, num=20):
 
     for idx in range(num):
         temp = Pose()
-        temp.position.x = pick_pose.position.x - step * z_dir[0]*(num-idx)
-        temp.position.y = pick_pose.position.y - step * z_dir[1]*(num-idx)
-        temp.position.z = pick_pose.position.z - step * z_dir[2]*(num-idx)
+        temp.position.x = pick_pose.position.x - step * z_dir[0]*(num-idx-1)
+        temp.position.y = pick_pose.position.y - step * z_dir[1]*(num-idx-1)
+        temp.position.z = pick_pose.position.z - step * z_dir[2]*(num-idx-1)
+        temp.orientation = pick_pose.orientation
+        new_traj.append(temp)
+    return new_traj
+
+def linear_interplotation_back(pick_pose, offset=0.1, num=20):
+    mat = quaternion_matrix((pick_pose.orientation.x, pick_pose.orientation.y, pick_pose.orientation.z, pick_pose.orientation.w))
+    z_dir = mat[:,2]
+    step = offset/num
+    new_traj = []
+
+    for idx in range(num):
+        temp = Pose()
+        temp.position.x = pick_pose.position.x - step * z_dir[0]*(idx-3)
+        temp.position.y = pick_pose.position.y - step * z_dir[1]*(idx-3)
+        temp.position.z = pick_pose.position.z - step * z_dir[2]*(idx-3)
         temp.orientation = pick_pose.orientation
         new_traj.append(temp)
     return new_traj

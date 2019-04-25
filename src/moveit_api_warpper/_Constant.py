@@ -11,22 +11,22 @@ prepick_offset = 0.17
 preinsert_offset = 0.17
 
 memoeryChip_pickPose = Pose()
-memoeryChip_pickPose.position.x = 0.481946058028
-memoeryChip_pickPose.position.y = 0.54180890263
-memoeryChip_pickPose.position.z = 0.468782527392
-memoeryChip_pickPose.orientation.x = 0.364570584249
-memoeryChip_pickPose.orientation.y = -0.925967095584
-memoeryChip_pickPose.orientation.z = 0.0897746178097
-memoeryChip_pickPose.orientation.w = 0.040171445
+memoeryChip_pickPose.position.x = 0.477944139903
+memoeryChip_pickPose.position.y = 0.542397797823
+memoeryChip_pickPose.position.z = 0.473
+memoeryChip_pickPose.orientation.x = 0.366112842563
+memoeryChip_pickPose.orientation.y = -0.925109260935
+memoeryChip_pickPose.orientation.z = 0.094844408107
+memoeryChip_pickPose.orientation.w = 0.0337458159515
 
 memoeryChip_insertPose = Pose()
-memoeryChip_insertPose.position.x = 0.570468414057
-memoeryChip_insertPose.position.y = 0.358130451457
-memoeryChip_insertPose.position.z = 0.49
-memoeryChip_insertPose.orientation.x = 0.371855843616
-memoeryChip_insertPose.orientation.y = -0.928127035811
-memoeryChip_insertPose.orientation.z = 0.0141112147368
-memoeryChip_insertPose.orientation.w = 0.0102132553229
+memoeryChip_insertPose.position.x = 0.568462689829
+memoeryChip_insertPose.position.y = 0.357238472434
+memoeryChip_insertPose.position.z = 0.499778886991
+memoeryChip_insertPose.orientation.x = 0.369692164759
+memoeryChip_insertPose.orientation.y = -0.929043458791
+memoeryChip_insertPose.orientation.z = 0.0136112936061
+memoeryChip_insertPose.orientation.w = 0.00454837112943
 
 cpu_pickPose = Pose()
 cpu_pickPose.position.x = 0.389964938732
