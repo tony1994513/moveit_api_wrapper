@@ -14,7 +14,7 @@ from tf.transformations import (
     quaternion_from_matrix,
 )
 import tf,numpy
-import pdb
+import ipdb
 
 z_offset = -0.19
 
@@ -129,6 +129,7 @@ def linear_interplotation(pick_pose, offset=0.1, num=20):
         temp.position.z = pick_pose.position.z - step * z_dir[2]*(num-idx-1)
         temp.orientation = pick_pose.orientation
         new_traj.append(temp)
+    # ipdb.set_trace()
     return new_traj
 
 def linear_interplotation_back(pick_pose, offset=0.1, num=20):

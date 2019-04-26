@@ -1,6 +1,6 @@
 from geometry_msgs.msg import PoseStamped, Pose
 
-memoeryChip_camera_detection= [-0.3131878674030304, 0.49928998947143555, 1.9762904644012451, 0.9798975586891174, 1.3386096954345703, -1.6718480587005615]
+memoeryChip_camera_detection= [-0.3132418394088745, 0.5032308101654053, 1.9767937660217285, 0.9807093739509583, 1.3362172842025757, -1.7094368934631348]
 
 cpu_camera_detection= [1.0064616203308105, 0.5986682176589966, 0.8863067030906677, 3.1495535373687744, -1.6331021785736084, -1.3761985301971436]
 
@@ -27,18 +27,18 @@ memoeryChip_pickPose.orientation.z = 0.094844408107
 memoeryChip_pickPose.orientation.w = 0.0337458159515
 
 memoeryChip_insertPose = Pose()
-memoeryChip_insertPose.position.x = 0.568462689829
-memoeryChip_insertPose.position.y = 0.357238472434
-memoeryChip_insertPose.position.z = 0.499778886991
-memoeryChip_insertPose.orientation.x = 0.369692164759
-memoeryChip_insertPose.orientation.y = -0.929043458791
-memoeryChip_insertPose.orientation.z = 0.0136112936061
-memoeryChip_insertPose.orientation.w = 0.00454837112943
+memoeryChip_insertPose.position.x = 0.568314318906
+memoeryChip_insertPose.position.y = 0.355574048252
+memoeryChip_insertPose.position.z = 0.495571926427
+memoeryChip_insertPose.orientation.x = 0.373353405366
+memoeryChip_insertPose.orientation.y = -0.927578177631
+memoeryChip_insertPose.orientation.z = 0.0135908782808
+memoeryChip_insertPose.orientation.w = 0.00460945890703
 
 memoeryChip_anomalyPose = Pose()
 memoeryChip_anomalyPose.position.x = 0.608794578804
 memoeryChip_anomalyPose.position.y = 0.392936547604
-memoeryChip_anomalyPose.position.z = 0.503982321713
+memoeryChip_anomalyPose.position.z = 0.502982321713
 memoeryChip_anomalyPose.orientation.x = -0.367271091496
 memoeryChip_anomalyPose.orientation.y = -0.930108039925
 memoeryChip_anomalyPose.orientation.z = 0.00229926534125
